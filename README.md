@@ -7,7 +7,7 @@ In dieser Hausaufgabe geht es um Framework-Benutzung und Ereignisbehandlung.
 Nehmen Sie das Assignment auf Github Classroom an und wählen Sie Ihren Namen aus der Liste aus.
 Dadurch wird ein (dieses) Repository für Sie erstellt. 
 Klonen Sie das Repo und pushen Sie Ihre Lösungen in mehreren sinnvoll zusammengefassten Commits (z.B. einer pro Teilaufgabe, es können aber auch gerne mehr sein).
-Sie müssen Ihre Lösung bis zum 20. Dezember um 23:59 Uhr gepusht haben, alle Tests müssen grün sein (und zwar auch auf GitHub!), und Sie müssen spätestens in der darauf folgenden von Ihnen belegten Übungsgruppe Ihre Lösung kurz demonstrieren.
+Sie müssen Ihre Lösung bis zum 23. Juni um 23:59 Uhr gepusht haben, alle Tests müssen grün sein (und zwar auch auf GitHub!), und Sie müssen spätestens in der darauf folgenden von Ihnen belegten Übungsgruppe Ihre Lösung kurz demonstrieren.
 
 ## Aufgabenstellung
 
