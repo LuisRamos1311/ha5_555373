@@ -1,7 +1,10 @@
 package htw.berlin.wi.prog2.parsing;
 
+import org.springframework.stereotype.Service;
+
 import java.util.Map;
 
+@Service
 public class TypoTolerantInputParser implements ExtendableInputParser {
 
     private CountingInputParser parser = new CountingInputParser();

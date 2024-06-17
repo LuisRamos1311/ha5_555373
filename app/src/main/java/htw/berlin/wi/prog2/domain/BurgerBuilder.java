@@ -1,10 +1,13 @@
 package htw.berlin.wi.prog2.domain;
 
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class BurgerBuilder {
 
     private List<Ingredient> ingredients = new ArrayList<>();

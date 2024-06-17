@@ -1,7 +1,10 @@
 package htw.berlin.wi.prog2.domain;
 
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
+@Service
 public class IngredientBuilder {
 
     private String name;

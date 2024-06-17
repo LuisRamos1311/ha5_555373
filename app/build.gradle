@@ -26,6 +26,7 @@ ext {
 
 dependencies {
     // TODO (1) Spring Shell Starter Dependency hinzufügen
+    implementation 'org.springframework.shell:spring-shell-starter:3.3.0'
     implementation 'org.springframework.shell:spring-shell-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
