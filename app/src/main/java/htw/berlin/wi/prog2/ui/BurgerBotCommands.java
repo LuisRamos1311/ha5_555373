@@ -40,14 +40,10 @@ public class BurgerBotCommands {
     this.menu = Menu.getInstance();
     this.input = new UserInputWrapper(System.in, System.out);
   }
-
-  @ShellMethod
+  //edited ShellMethod
+  @ShellMethod(value = "Create a new burger order", key = "order")
   public String order(@ShellOption(help = "The input string") String inputLine) {
 
-    //paste Method from ha4
-    ExtendableInputParser extendableInputParser = new CountingInputParser();
-
-    BurgerBuilder burgerBuilder = new BurgerBuilder(BurgerBuilder.CreationStyle.PRECOMPUTED);
     Map<Long, Ingredient> articles = menu.getAllArticles();
 
     while (!(inputLine.equals("Bestellung abschliessen") || inputLine.equals("Auf Wiedersehen"))) {
@@ -62,8 +58,10 @@ public class BurgerBotCommands {
         Burger burger = builder.build();
         var comparator = Comparator.comparing(Ingredient::getName);
         List<Ingredient> ingrSorted = ingredients.stream().sorted(comparator).collect(Collectors.toList());
-        inputLine = input.ask("In Ordnung. Dein Burger mit " + ingrSorted +
-                " kostet " + burger.calculatePrice() + " Euro. Willst du die Bestellung abschliessen?");
+        //added orderedBurgers and return
+        orderedBurgers.add(burger);
+        return "In Ordnung. Dein Burger mit " + ingrSorted +
+                " kostet " + burger.calculatePrice() + " Euro. Willst du die Bestellung abschliessen?";
       }
     }
 
@@ -73,9 +71,11 @@ public class BurgerBotCommands {
     // TODO (5) Observer-Muster implementieren und hier die notifyObservers-Methode aufrufen
   }
 
-  @ShellMethod
+  //edited ShellMethod
+  @ShellMethod(value = "Confirm the order and see the total price", key = "confirm")
   public String confirm() {
     // TODO (3) Preis der gesamten Bestellung mithilfe von orderedBurgers berechnen
-    return "Vielen Dank...";
+    //added Stream
+    return "Vielen Dank Ihre gesamte Bestellung kostet " + orderedBurgers.stream().mapToInt(burger -> burger.calculatePrice().intValue()).sum() + " Euro";
   }
 }
