@@ -5,21 +5,18 @@ import htw.berlin.wi.prog2.data.MenuUtils;
 import htw.berlin.wi.prog2.domain.Burger;
 import htw.berlin.wi.prog2.domain.BurgerBuilder;
 import htw.berlin.wi.prog2.domain.Ingredient;
-import htw.berlin.wi.prog2.parsing.CountingInputParser;
 import htw.berlin.wi.prog2.parsing.ExtendableInputParser;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 // TODO (2) Annotations @ShellComponent, @ShellMethod, und @ShellOption verwenden
 @ShellComponent
-public class BurgerBotCommands {
+public class BurgerBotCommands implements Observable {
 
   final List<Burger> orderedBurgers;
 
@@ -29,6 +26,9 @@ public class BurgerBotCommands {
   private final Menu menu;
   //added to the constructor
   private final UserInputWrapper input;
+
+  private List<Observer> observers = new ArrayList<>();
+
 
 
 
@@ -46,36 +46,62 @@ public class BurgerBotCommands {
 
     Map<Long, Ingredient> articles = menu.getAllArticles();
 
+    //goes through the list of ingredients created in ha2
+    //if the ingredient list is empty returns "sorry text" + menu list
+    //else, launch the burger build method with the ingredients
     while (!(inputLine.equals("Bestellung abschliessen") || inputLine.equals("Auf Wiedersehen"))) {
       Map<String, Long> keywordsToIds = MenuUtils.focusOnNameAndInvert(articles);
       Map<Long, Integer> ingredientsCount = parser.idsAndCountFromInput(inputLine, keywordsToIds);
       List<Ingredient> ingredients = MenuUtils.ingredientsFromIdAndCount(ingredientsCount, articles);
       if(ingredients.isEmpty()) {
-        inputLine = input.ask("Entschuldigung, ich habe dich nicht verstanden. Wähle aus folgenden Zutaten: "
-                + MenuUtils.focusOnNames(articles));
+        inputEventPublisher.publishInputEvent(false);
+        return "Entschuldigung, ich habe dich nicht verstanden. Wähle aus folgenden Zutaten: "
+                + MenuUtils.focusOnNames(articles);
       } else {
+        inputEventPublisher.publishInputEvent(true);
         for (Ingredient ing : ingredients) builder.add(ing);
         Burger burger = builder.build();
-        var comparator = Comparator.comparing(Ingredient::getName);
-        List<Ingredient> ingrSorted = ingredients.stream().sorted(comparator).collect(Collectors.toList());
+        //List of ingredients from the burger build are sorted,
+        //and with the map method each ingredient is returned as a String and returns it as a list
+        List<String> ingrSorted = burger.getIngredientNames().stream().sorted().map(ingredient -> ingredient.toString()).toList();
         //added orderedBurgers and return
         orderedBurgers.add(burger);
-        return "In Ordnung. Dein Burger mit " + ingrSorted +
-                " kostet " + burger.calculatePrice() + " Euro. Willst du die Bestellung abschliessen?";
+        notifyObservers();
+        return "In Ordnung. Dein 1. Burger mit " + ingrSorted +
+                " kostet " + burger.calculatePrice() + " EUR.\nGib <confirm> ein, um die Bestellung abzuschliessen oder bestelle einen weitere Burger mit <order -t '...'>";
       }
     }
 
-    // TODO (3) parser, builder, menu, orderedBurgers nutzen, um Bestellungen aufzunehmen
     return "In Ordnung ...";
-    // TODO (4) Klasse BurgerBotPromptProvider erstellen und dann inputEventPublisher für Prompt-Updates nutzen
-    // TODO (5) Observer-Muster implementieren und hier die notifyObservers-Methode aufrufen
   }
 
   //edited ShellMethod
+  //confirm method means order is closed
+  //It returns how many burgers and the price in type double from a map
   @ShellMethod(value = "Confirm the order and see the total price", key = "confirm")
   public String confirm() {
-    // TODO (3) Preis der gesamten Bestellung mithilfe von orderedBurgers berechnen
     //added Stream
-    return "Vielen Dank Ihre gesamte Bestellung kostet " + orderedBurgers.stream().mapToInt(burger -> burger.calculatePrice().intValue()).sum() + " Euro";
+    return "Vielen Dank für deine Bestellung. Du hast " + orderedBurgers.size() +
+            " Burger bestellt. Die Gesamtsumme beträgt " +
+            String.format("%.2f", orderedBurgers.stream()
+            .mapToDouble(burger -> burger.calculatePrice().doubleValue())
+            .sum()) + " EUR.";
+  }
+
+  @Override
+  public void addObserver(Observer obs) {
+    observers.add(obs);
+  }
+
+  @Override
+  public void removeObserver(Observer obs) {
+    observers.remove(obs);
+  }
+
+  @Override
+  public void notifyObservers() {
+    for (Observer observer : observers) {
+      observer.update();
+    }
   }
 }
